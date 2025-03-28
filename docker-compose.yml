@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  fhir:
+    container_name: fhir
+    image: "hapiproject/hapi:latest"
+    ports:
+      - "8080:8080"
+    environment:
+      HAPI_FHIR_VALIDATION_REQUESTS_ENABLED: 'true'
+      HAPI_FHIR_SERVER_VALIDATION_FLAG_FAIL_ON_SEVERITY: error
+      HAPI_FHIR_SERVER_VALIDATION_FLAG_ENFORCE_REQUIREMENT: 'true'
+    configs:
+      - source: hapi
+        target: /app/config/application.yaml
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_USER: admin
+      POSTGRES_DB: hapi
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./hapi.postgress.data:/var/lib/postgresql/data
+
+  nodejs:
+    container_name: nodejs
+    image: node:18
+    volumes:
+      - .:/workdir
+    working_dir: /workdir
+    ports:
+      - 4000:4000
+    depends_on:
+      - db
+    command: >
+      bash -c "
+        npm install &&
+        npm start
+      "
+      
+configs:
+  hapi:
+     file: ./hapi.application.yaml

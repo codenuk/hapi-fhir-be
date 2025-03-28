@@ -9,8 +9,10 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 const hospitalRouter = require('./Routers/hospital.routes');
+const testRouter = require('./Routers/test.routes');
 
 app.use('/hospital', hospitalRouter);
+app.use('/test', testRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
